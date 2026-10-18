@@ -26,6 +26,35 @@ func Run() {
 }
 
 func createFeed(products []Product, category string) (feeds.Feed, error) {
+	blacklist := []string{
+		"-ai-",
+		" ai ",
+		"claude",
+		"ChatGPT",
+		"GPT-",
+		"higgsfield",
+	}
+
+	filteredProducts := make([]Product, 0, len(products))
+    for _, product := range products {
+        blacklisted := false
+
+        for _, term := range blacklist {
+            if strings.Contains(
+                strings.ToLower(product.TileShortName),
+                strings.ToLower(term),
+            ) {
+                blacklisted = true
+                break
+            }
+        }
+
+        if !blacklisted {
+            filteredProducts = append(filteredProducts, product)
+        }
+    }
+
+	
 	feed := feeds.Feed{
 		Title:       fmt.Sprintf("Go Humble! RSS %s", strings.ToTitle(category)),
 		Link:        &feeds.Link{Href: "https://go-humble.github.io"},
@@ -33,8 +62,8 @@ func createFeed(products []Product, category string) (feeds.Feed, error) {
 		Author:      &feeds.Author{Name: "Nils Müller", Email: "shimst3r+rss@gmail.com"},
 		Created:     time.Now(),
 	}
-	feed.Items = make([]*feeds.Item, len(products))
-	for idx, product := range products {
+	feed.Items = make([]*feeds.Item, len(filteredProducts))
+	for idx, product := range filteredProducts {
 		// Need to add a Z in order to make it RFC3339 parseable.
 		dt, err := time.Parse(time.RFC3339, product.StartDateDatetime+"Z")
 		if err != nil {
