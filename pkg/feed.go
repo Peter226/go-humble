@@ -40,8 +40,25 @@ func createFeed(products []Product, category string) (feeds.Feed, error) {
         blacklisted := false
 
         for _, term := range blacklist {
+			//filter title
             if strings.Contains(
                 strings.ToLower(product.TileShortName),
+                strings.ToLower(term),
+            ) {
+                blacklisted = true
+                break
+            }
+			//filter description
+            if strings.Contains(
+                strings.ToLower(product.ShortMarketingBlurb),
+                strings.ToLower(term),
+            ) {
+                blacklisted = true
+                break
+            }
+			//filter content
+            if strings.Contains(
+                strings.ToLower(product.DetailedMarketingBlurb),
                 strings.ToLower(term),
             ) {
                 blacklisted = true
